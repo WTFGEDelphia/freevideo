@@ -29,8 +29,11 @@ def check_url(url):
 
 
 def download_segment(segment_url, segment_file_path):
-    if os.path.exists(segment_file_path) and os.path.getsize(segment_file_path) > 0:
-        logger.warn(f"Segment {segment_file_path} already exists. Skipping download.")
+    if (
+        os.path.exists(segment_file_path)
+        and os.path.getsize(segment_file_path) > 100 * 1024
+    ):
+        logger.debug(f"Segment {segment_file_path} already exists. Skipping download.")
         return
 
     if not check_url(segment_url):
@@ -210,7 +213,7 @@ def ffmpeg_merge_ts_files(output_dir, output_file):
             filelist.write(f"file '{ts_file}'\n")
     # 使用 ffmpeg 合并 .ts 文件
     cmd = [
-        "D:\\ProgramData\\ffmpeg-6.1.1-full_build\\bin\\ffmpeg.exe",
+        "/usr/local/bin/ffmpeg",
         "-f",
         "concat",
         "-safe",
@@ -219,9 +222,14 @@ def ffmpeg_merge_ts_files(output_dir, output_file):
         "filelist.txt",
         "-c",
         "copy",
+        "-bsf:a",
+        "aac_adtstoasc",
+        "-movflags",
+        "+faststart",
+        "-y",
         os.path.join(absolute_path, output_file),
     ]
-    subprocess.run(cmd, check=False)
+    subprocess.run(cmd, check=True, capture_output=True, text=True)
 
 
 def main():
@@ -234,8 +242,8 @@ def main():
     max_threads = 1  # 最大线程数
 
     download_m3u8(m3u8_url, output_directory, max_workers=max_threads)
-    # merge_ts_files(output_directory, output_file)
-    # ffmpeg_merge_ts_files(output_directory, output_file)
+    merge_ts_files(output_directory, output_file)
+    ffmpeg_merge_ts_files(output_directory, output_file)
 
 
 if __name__ == "__main__":
