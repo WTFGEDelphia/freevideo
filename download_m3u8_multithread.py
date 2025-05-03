@@ -235,13 +235,20 @@ def ffmpeg_merge_ts_files(output_dir, output_file):
 def main():
     # 使用示例
     # m3u8_url = "https://tenxun.aly.k6yakjux.cc/videos/202005/30/5ec2937d97e29f27c9b859ab/ec12gg/index.m3u8"
-    m3u8_url = "https://v.cdnlz3.com/20241015/27930_52f4b5be/index.m3u8"
-    # m3u8_url = "https://v.cdnlz3.com/20241015/27930_52f4b5be/2000k/hls/mixed.m3u8"
+    # m3u8_url = "https://v.cdnlz3.com/20241015/27930_52f4b5be/index.m3u8"
+    m3u8_url = "https://v.cdnlz22.com/20250403/15049_29e89b20/2000k/hls/mixed.m3u8"
+    m3u8_url = "https://v.cdnlz22.com/20250403/15050_c21f3a02/2000k/hls/mixed.m3u8"
+    m3u8_url = "https://v.cdnlz22.com/20250403/15051_2693c24b/2000k/hls/mixed.m3u8"
+    m3u8_url = "https://v.cdnlz22.com/20250403/15052_ed54244d/2000k/hls/mixed.m3u8"
+    m3u8_url = "https://v.cdnlz22.com/20250403/15053_cb2cbd72/2000k/hls/mixed.m3u8"
+    m3u8_url = "https://v.cdnlz22.com/20250403/15054_5580712a/2000k/hls/mixed.m3u8"
+    m3u8_url = "https://v.cdnlz22.com/20250403/15055_4c6ce962/2000k/hls/mixed.m3u8"
+    m3u8_url = "https://v.cdnlz22.com/20250403/15056_a008844c/2000k/hls/mixed.m3u8"
     output_directory = "output_segments"
     output_file = "output_video.mp4"
     max_threads = 1  # 最大线程数
 
-    download_m3u8(m3u8_url, output_directory, max_workers=max_threads)
+    # download_m3u8(m3u8_url, output_directory, max_workers=max_threads)
     merge_ts_files(output_directory, output_file)
     ffmpeg_merge_ts_files(output_directory, output_file)
 
