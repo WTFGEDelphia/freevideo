@@ -459,7 +459,7 @@ def parse_arguments():
     parser.add_argument(
         "-o",
         "--output-dir",
-        default="output_segments",
+        default="output",
         help="Directory to save segments",
     )
     parser.add_argument(
@@ -561,7 +561,8 @@ async def main_async():
         # 使用示例URL
         urls = [
             # "https://v.cdnlz22.com/20250403/15049_29e89b20/2000k/hls/mixed.m3u8",
-            "https://tenxun.aly.k6yakjux.cc/videos/202005/30/5ec2937d97e29f27c9b859ab/ec12gg/index.m3u8",
+            # "https://v1.qrssv.com/202308/19/E5vLJaiE5q2/video/2000k_1080/hls/index.m3u8",
+            "https://surrit.missav.fans/cdc173dc-b9b5-4d7a-96bc-549d9efda5d0/1280x720/video.m3u8",
             # 其他示例URL可以在这里添加
         ]
         logger.warning("No URL or file specified, using example URL")
