@@ -2,9 +2,15 @@
 
 # 忽略 Python 虚拟环境
 venv/
-
+.venv/
+.**/
+test**/
+node*
 # 忽略输出目录
 output/
+
+# 忽略运行时日志
+download.log
 
 # 忽略所有 .pyc 文件
 *.pyc

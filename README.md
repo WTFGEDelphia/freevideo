@@ -7,6 +7,8 @@
 - **多线程异步下载**：利用`ThreadPoolExecutor`和`asyncio`实现高效并发下载
 - **智能流选择**：自动选择最高带宽的视频流质量
 - **断点续传**：支持从中断处继续下载，避免重复下载
+- **Cloudflare 绕过**：`download_av1_multithread.py` 通过 `curl_cffi` 模拟 Chrome TLS 指纹，可下载被 Cloudflare 保护的内容（如 surrit.com / missav.ws）
+- **fMP4 初始化段**：`download_av1_multithread.py` 支持 `EXT-X-MAP` init 段，可下载 fMP4 分片流
 - **多种合并选项**：提供基础合并和FFmpeg高质量合并两种方式
 - **跨平台兼容**：自动检测并适配不同操作系统的FFmpeg路径
 - **命令行界面**：支持通过命令行参数控制下载行为
@@ -23,12 +25,14 @@
 ### Python安装指导
 
 #### Windows
+
 1. **下载Python**：
+
    - 访问 [Python官网](https://www.python.org/downloads/)
    - 下载最新版本的Python（推荐Python 3.11或更高版本）
    - 选择适合你系统的版本（32位或64位）
-
 2. **安装方法**：
+
    ```bash
    # 方法1：使用Microsoft Store（推荐）
    # 在Microsoft Store中搜索"Python"并安装
@@ -44,8 +48,8 @@
    # 2. 勾选"Add Python to PATH"选项
    # 3. 选择"Install Now"或"Customize installation"
    ```
-
 3. **验证安装**：
+
    ```bash
    python --version
    # 或
@@ -53,7 +57,9 @@
    ```
 
 #### macOS
+
 1. **使用Homebrew（推荐）**：
+
    ```bash
    # 安装Homebrew（如果未安装）
    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -61,13 +67,13 @@
    # 安装Python
    brew install python
    ```
-
 2. **使用官方安装包**：
+
    - 访问 [Python官网](https://www.python.org/downloads/)
    - 下载macOS版本的安装包
    - 运行安装程序
-
 3. **使用pyenv管理多个Python版本**：
+
    ```bash
    # 安装pyenv
    brew install pyenv
@@ -76,14 +82,16 @@
    pyenv install 3.11.0
    pyenv global 3.11.0
    ```
-
 4. **验证安装**：
+
    ```bash
    python3 --version
    ```
 
 #### Linux (Ubuntu/Debian)
+
 1. **使用apt包管理器**：
+
    ```bash
    # 更新包列表
    sudo apt update
@@ -94,8 +102,8 @@
    # 设置python3为默认python命令
    sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 1
    ```
-
 2. **使用pyenv管理多个Python版本**：
+
    ```bash
    # 安装依赖
    sudo apt install build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev python3-openssl git
@@ -115,15 +123,17 @@
    pyenv install 3.11.0
    pyenv global 3.11.0
    ```
-
 3. **验证安装**：
+
    ```bash
    python3 --version
    pip3 --version
    ```
 
 #### Linux (CentOS/RHEL/Fedora)
+
 1. **使用yum/dnf包管理器**：
+
    ```bash
    # CentOS/RHEL 7
    sudo yum install python3 python3-pip
@@ -131,8 +141,8 @@
    # CentOS/RHEL 8/9 或 Fedora
    sudo dnf install python3 python3-pip
    ```
-
 2. **使用pyenv管理多个Python版本**：
+
    ```bash
    # 安装依赖
    sudo dnf groupinstall "Development Tools"
@@ -153,20 +163,22 @@
    pyenv install 3.11.0
    pyenv global 3.11.0
    ```
-
 3. **验证安装**：
+
    ```bash
    python3 --version
    pip3 --version
    ```
 
 #### Linux (Arch Linux)
+
 1. **使用pacman包管理器**：
+
    ```bash
    sudo pacman -S python python-pip
    ```
-
 2. **验证安装**：
+
    ```bash
    python --version
    pip --version
@@ -182,6 +194,7 @@
 
 **Q: 如何检查当前Python版本？**
 A: 在终端中运行：
+
 ```bash
 python --version
 # 或
@@ -189,7 +202,8 @@ python3 --version
 ```
 
 **Q: 如何升级pip？**
-A: 
+A:
+
 ```bash
 # Windows
 python -m pip install --upgrade pip
@@ -202,6 +216,7 @@ python3 -m pip install --upgrade pip
 
 **Q: 如何安装特定版本的Python？**
 A: 推荐使用pyenv工具管理多个Python版本：
+
 ```bash
 # 安装pyenv后
 pyenv install 3.11.0
@@ -209,7 +224,8 @@ pyenv global 3.11.0
 ```
 
 **Q: 系统同时安装了Python 2和Python 3怎么办？**
-A: 
+A:
+
 - 使用 `python3` 命令明确指定Python 3
 - 使用pyenv管理不同版本
 - 在Windows上可以修改PATH优先级
@@ -217,19 +233,23 @@ A:
 ## 依赖库
 
 - aiofiles - 异步文件操作
-- aiohttp - 异步HTTP客户端
+- aiohttp - 异步HTTP客户端（模块化版本及部分单文件脚本使用）
+- curl_cffi - 模拟 Chrome TLS 指纹，绕过 Cloudflare 防护（`download_av1_multithread.py` 使用）
 - m3u8 - M3U8播放列表解析
 - tqdm - 进度条显示
+- pycryptodome - AES-128 解密（加密 HLS 流）
 
 ## 安装
 
 1. 克隆仓库：
+
 ```bash
 git clone https://github.com/WTFGEDelphia/freevideo.git
 cd freevideo
 ```
 
 2. 创建并激活虚拟环境（推荐）：
+
 ```bash
 # Windows
 python -m venv venv
@@ -241,6 +261,7 @@ source venv/bin/activate
 ```
 
 3. 安装依赖：
+
 ```bash
 pip install -r requirements.txt
 ```
@@ -250,12 +271,14 @@ pip install -r requirements.txt
 ### FFmpeg安装指导
 
 #### Windows
+
 1. **下载安装包**：
+
    - 访问 [FFmpeg官网](https://ffmpeg.org/download.html)
    - 下载Windows版本（推荐选择"Windows builds from gyan.dev"）
    - 选择适合你系统的版本（32位或64位）
-
 2. **安装方法**：
+
    ```bash
    # 方法1：使用Chocolatey包管理器
    choco install ffmpeg
@@ -267,14 +290,16 @@ pip install -r requirements.txt
    # 1. 解压下载的zip文件到 C:\ffmpeg
    # 2. 将 C:\ffmpeg\bin 添加到系统PATH环境变量
    ```
-
 3. **验证安装**：
+
    ```bash
    ffmpeg -version
    ```
 
 #### macOS
+
 1. **使用Homebrew（推荐）**：
+
    ```bash
    # 安装Homebrew（如果未安装）
    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -282,19 +307,21 @@ pip install -r requirements.txt
    # 安装FFmpeg
    brew install ffmpeg
    ```
-
 2. **使用MacPorts**：
+
    ```bash
    sudo port install ffmpeg
    ```
-
 3. **验证安装**：
+
    ```bash
    ffmpeg -version
    ```
 
 #### Linux (Ubuntu/Debian)
+
 1. **使用apt包管理器**：
+
    ```bash
    # 更新包列表
    sudo apt update
@@ -302,14 +329,16 @@ pip install -r requirements.txt
    # 安装FFmpeg
    sudo apt install ffmpeg
    ```
-
 2. **验证安装**：
+
    ```bash
    ffmpeg -version
    ```
 
 #### Linux (CentOS/RHEL/Fedora)
+
 1. **使用yum/dnf包管理器**：
+
    ```bash
    # CentOS/RHEL 7
    sudo yum install epel-release
@@ -318,19 +347,21 @@ pip install -r requirements.txt
    # CentOS/RHEL 8/9 或 Fedora
    sudo dnf install ffmpeg
    ```
-
 2. **验证安装**：
+
    ```bash
    ffmpeg -version
    ```
 
 #### Linux (Arch Linux)
+
 1. **使用pacman包管理器**：
+
    ```bash
    sudo pacman -S ffmpeg
    ```
-
 2. **验证安装**：
+
    ```bash
    ffmpeg -version
    ```
@@ -339,44 +370,75 @@ pip install -r requirements.txt
 
 **Q: 安装后仍然提示"FFmpeg未找到"？**
 A: 请检查以下几点：
+
 - 确保FFmpeg已添加到系统PATH环境变量
 - 重启终端/命令提示符
 - 使用 `which ffmpeg` (Linux/macOS) 或 `where ffmpeg` (Windows) 检查路径
 
 **Q: 如何手动添加PATH环境变量？**
-A: 
+A:
+
 - **Windows**: 系统属性 → 环境变量 → 编辑PATH → 添加FFmpeg的bin目录路径
 - **Linux/macOS**: 在 `~/.bashrc` 或 `~/.zshrc` 中添加 `export PATH="/path/to/ffmpeg:$PATH"`
 
 **Q: 可以使用项目内置的FFmpeg吗？**
 A: 可以，使用 `--ffmpeg` 参数指定FFmpeg可执行文件的完整路径：
+
 ```bash
 python download_m3u8_multithread.py -u "URL" --ffmpeg "/path/to/ffmpeg"
 ```
 
-## 命令行参数
+## 下载脚本说明
+
+仓库提供多个下载脚本，按目标站点特性选择：
+
+| 脚本 | 适用场景 | 关键能力 |
+| --- | --- | --- |
+| `cli.py` / `gui.py` | 通用 M3U8，模块化入口 | 智能流选择，多 URL 顺序处理 |
+| `download_m3u8_multithread.py` | 单 URL，可能加密的 HLS | AES-128 解密（URL 硬编码在 `main()`） |
+| `download_m3u9_multithread.py` | 批量多 URL 并发 | argparse CLI，`-f` 批量文件 |
+| `download_av1_multithread.py` | **Cloudflare 保护的流（surrit.com / missav.ws 等）** | `curl_cffi` 模拟 Chrome 指纹绕 CF；fMP4 `EXT-X-MAP` init 段 |
+
+**下载 surrit.com / missav.ws 等被 Cloudflare 保护的流，必须用 `download_av1_multithread.py`**。其他脚本基于 `aiohttp`，无法绕过 Cloudflare 的 TLS 指纹检测，会返回 HTTP 403。
+
+### `download_av1_multithread.py` 参数
 
 | 参数 | 说明 | 默认值 |
-|------|------|--------|
-| `-u, --url` | M3U8地址（单个URL） | - |
-| `-f, --file` | 包含多个M3U8地址的文件（每行一个） | - |
-| `-o, --output-dir` | 下载输出目录 | `output_segments` |
-| `-v, --output-video` | 输出视频文件名 | `output_video.mp4` |
-| `-t, --threads` | 下载线程数 | `5` |
-| `--ffmpeg` | 指定FFmpeg可执行文件路径 | 自动检测 |
-| `--no-merge` | 只下载不合并 | `False` |
-| `--no-ffmpeg` | 不用FFmpeg合并，使用基础合并 | `False` |
+| --- | --- | --- |
+| `-u, --url` | M3U8 地址（master 或 media） | 内置示例 URL |
+| `-o, --output-dir` | 分片下载目录 | `output` |
+| `-v, --output-video` | 输出视频文件名 | `final_video.mp4` |
+| `-t, --threads` | 并发线程数 | `10` |
+| `-q, --quality` | 画质提示，如 `720p` `/`480p`（仅 master playlist 生效） | 自动选最高带宽 |
+| `--referer` | Referer 请求头 | `https://creative.mavrtracktor.com/` |
+| `--impersonate` | curl_cffi TLS 指纹，绕 Cloudflare | `chrome124` |
 | `--keep-segments` | 合并后保留分片文件 | `False` |
-| `--log-level` | 日志级别 | `INFO` |
+
+## 命令行参数
+
+| 参数                   | 说明                               | 默认值               |
+| ---------------------- | ---------------------------------- | -------------------- |
+| `-u, --url`          | M3U8地址（单个URL）                | -                    |
+| `-f, --file`         | 包含多个M3U8地址的文件（每行一个） | -                    |
+| `-o, --output-dir`   | 下载输出目录                       | `output_segments`  |
+| `-v, --output-video` | 输出视频文件名                     | `output_video.mp4` |
+| `-t, --threads`      | 下载线程数                         | `5`                |
+| `--ffmpeg`           | 指定FFmpeg可执行文件路径           | 自动检测             |
+| `--no-merge`         | 只下载不合并                       | `False`            |
+| `--no-ffmpeg`        | 不用FFmpeg合并，使用基础合并       | `False`            |
+| `--keep-segments`    | 合并后保留分片文件                 | `False`            |
+| `--log-level`        | 日志级别                           | `INFO`             |
 
 ## 使用示例
 
 ### 1. 下载单个视频
+
 ```bash
 python download_m3u8_multithread.py -u "https://example.com/video.m3u8" -v "movie.mp4"
 ```
 
 ### 2. 批量下载（从文件读取URL）
+
 ```bash
 # 创建包含多个URL的文件 urls.txt
 echo "https://example.com/video1.m3u8" > urls.txt
@@ -387,48 +449,72 @@ python download_m3u8_multithread.py -f urls.txt -o "downloads"
 ```
 
 ### 3. 自定义下载参数
+
 ```bash
 # 使用20个线程，5次重试，保留分片文件
 python download_m3u8_multithread.py -u "https://example.com/video.m3u8" -t 20 --keep-segments
 ```
 
 ### 4. 使用基础合并（不使用FFmpeg）
+
 ```bash
 python download_m3u8_multithread.py -u "https://example.com/video.m3u8" --no-ffmpeg
 ```
 
 ### 5. 只下载不合并
+
 ```bash
 python download_m3u8_multithread.py -u "https://example.com/video.m3u8" --no-merge
 ```
 
 ### 6. 自定义FFmpeg路径
+
 ```bash
 python download_m3u8_multithread.py -u "https://example.com/video.m3u8" --ffmpeg "C:\ffmpeg\bin\ffmpeg.exe"
 ```
 
+### 7. 下载 Cloudflare 保护的流（surrit.com / missav.ws）
+
+被 Cloudflare 保护的流必须用 `download_av1_multithread.py`，并通过 `--referer` 指定来源页：
+
+```bash
+python download_av1_multithread.py \
+  -u "https://surrit.com/<id>/1080p/video.m3u8" \
+  --referer "https://missav.ws/<page>" \
+  -v "out.mp4" -t 5
+```
+
+**并发数建议 `-t 5`**：surrit.com 的 CDN 对高并发有带宽惩罚，实测 5 并发约 2.2 秒/分片，20 并发反而 6.8 秒/分片（慢 3 倍）。若其他 CDN 也出现高并发变慢，降低 `-t` 重试。
+
+若 `chrome124` 指纹失效（CF 升级），可用 `--impersonate` 切换其他版本：`chrome120`、`chrome116`、`chrome110` 等。
+
 ## 代码结构
 
 ### 配置模块
+
 - **Config类**：集中管理下载参数和配置
 - **命令行参数解析**：处理用户输入的参数
 - **日志系统**：支持多级别日志输出
 
 ### URL处理模块
+
 - **check_url**：验证URL可访问性
 - **get_base_url**：处理相对路径
 - **get_bandwidth**：选择最高质量的视频流
 
 ### 下载模块
+
 - **download_segment**：下载单个视频片段，支持重试机制
 - **download_m3u8**：处理M3U8播放列表并下载所有片段
 - **异步下载**：使用aiohttp和asyncio实现高效下载
 
 ### 合并模块
+
 - **merge_ts_files**：基础的TS文件合并，使用分块读写
 - **ffmpeg_merge_ts_files**：使用FFmpeg进行高质量合并
 
 ### 主控模块
+
 - **process_url**：处理单个M3U8 URL的完整流程
 - **main_async**：异步主函数，支持批量处理
 - **main**：程序入口点，处理命令行参数并启动下载
@@ -447,20 +533,24 @@ python download_m3u8_multithread.py -u "https://example.com/video.m3u8" --ffmpeg
 ## 高级特性
 
 ### 内存优化
+
 - 使用分块读写来处理大文件，避免将整个文件加载到内存中
 - 支持大文件的高效处理
 
 ### 错误处理
+
 - 包含重试机制和异常处理
 - 确保在网络不稳定的情况下也能完成下载
 - 自动清理失败的下载文件
 
 ### 跨平台兼容性
+
 - 自动检测操作系统并使用适当的FFmpeg路径
 - 支持Windows、Linux、macOS等系统
 - 处理不同系统的路径格式
 
 ### 智能流选择
+
 - 自动解析主播放列表中的多个质量流
 - 选择带宽最高的流进行下载
 - 支持自适应码率流
@@ -468,18 +558,27 @@ python download_m3u8_multithread.py -u "https://example.com/video.m3u8" --ffmpeg
 ## 常见问题
 
 ### Q: FFmpeg未找到怎么办？
+
 A: 请确保已安装FFmpeg并添加到系统PATH中，或使用`--ffmpeg`参数指定FFmpeg路径。
 
 ### Q: 下载速度慢怎么办？
-A: 可以增加线程数（`-t`参数），但要注意不要超过服务器限制。
+
+A: 先尝试调整 `-t` 并发数。多数 CDN 可增大 `-t`（如 `-t 20`）加速；但 **surrit.com 等 CDN 对高并发有带宽惩罚**，反而要用 `-t 5` 才最快（实测 5 并发 2.2s/分片，20 并发 6.8s/分片）。若增大 `-t` 后反而变慢，降到 5 重试。
+
+### Q: 下载 surrit.com / missav.ws 返回 403 怎么办？
+
+A: 这是 Cloudflare 拦截。必须改用 `download_av1_multithread.py`（基于 `curl_cffi` 模拟 Chrome TLS 指纹），不能用 `cli.py` 或 `download_m3u8_multithread.py`（基于 `aiohttp`，过不了 CF）。示例见上文"7. 下载 Cloudflare 保护的流"。若仍 403，用 `--impersonate chrome120`（或其他版本）重试，或检查 `--referer` 是否正确。
 
 ### Q: 合并失败怎么办？
+
 A: 尝试使用`--no-ffmpeg`参数使用基础合并，或检查FFmpeg是否正确安装。
 
 ### Q: 如何保留分片文件？
+
 A: 使用`--keep-segments`参数可以在合并后保留分片文件。
 
 ### Q: 支持哪些日志级别？
+
 A: 支持DEBUG、INFO、WARNING、ERROR、CRITICAL级别，使用`--log-level`参数设置。
 
 ## 注意事项
@@ -499,6 +598,7 @@ A: 支持DEBUG、INFO、WARNING、ERROR、CRITICAL级别，使用`--log-level`�
 
 ## 更新日志
 
+- `download_av1_multithread.py` 迁移到 `curl_cffi`，支持绕过 Cloudflare 下载 surrit.com / missav.ws 等流（新增 `--impersonate` 参数）
 - 支持多线程异步下载
 - 添加智能流选择功能
 - 支持批量下载

@@ -3,3 +3,4 @@ aiohttp>=3.11.13
 m3u8>=5.1.0
 tqdm>=4.67.1
 pycryptodome>=3.23.0
+curl_cffi>=0.7.0
